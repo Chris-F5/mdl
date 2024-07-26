@@ -185,19 +185,28 @@ def read_dlist(fname):
     except FileNotFoundError:
         return []
 
-print("generating dlist from catalogue...")
+def usage():
+    print("usage: mdl <command> [args]")
+    print("    index <catalogue>    Generate .dlist file from catalogue.")
+    print("    download <catalogue>     Download .dlist content.")
+    exit(1)
 
-force_info_fetch = False
-old_dlist = [] if force_info_fetch else read_dlist('.dlist')
-
-catalogue_file = open('catalogue', 'r')
-dlist = parse_catalogue(catalogue_file, old_dlist)
-catalogue_file.close()
-
-write_dlist('.dlist', dlist)
-
-print("downloading audio...")
-
-download_list(dlist, '.archive')
-
+if len(sys.argv) != 3:
+    usage()
+if sys.argv[1] == 'index':
+    catalogue_fname = sys.argv[2]
+    dlist_fname = f"{catalogue_fname}.dlist"
+    force_info_fetch = False
+    old_dlist = [] if force_info_fetch else read_dlist(dlist_fname)
+    catalogue_file = open(catalogue_fname, 'r')
+    dlist = parse_catalogue(catalogue_file, old_dlist)
+    catalogue_file.close()
+    write_dlist(dlist_fname, dlist)
+elif sys.argv[1] == 'download':
+    catalogue_fname = sys.argv[2]
+    dlist_fname = f"{catalogue_fname}.dlist"
+    dlist = read_dlist(dlist_fname)
+    download_list(dlist, '.archive')
+else:
+    usage()
 print("DONE")
